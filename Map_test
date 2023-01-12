@@ -1,0 +1,93 @@
+import asyncio
+import pygame 
+
+pygame.init()
+
+screen = pygame.display.set_mode((700,700))
+pygame.display.set_caption("Game")
+
+speed = 10
+player_x = 200
+player_y = 600
+
+# Use a constant. There's not need to make big Surfaces and then draw a smaller rect on them to create the map.
+TILESIZE = 50
+
+tile_list = []
+map = [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,1,0,1,0,0,0,0,0,1],
+        [1,0,1,0,0,0,1,0,1,1,1,0,1],
+        [1,0,0,0,1,1,1,0,0,0,0,0,1],
+        [1,0,1,0,0,0,0,0,1,1,1,0,1],
+        [1,0,1,0,1,1,1,0,1,0,0,0,1],
+        [1,0,1,0,1,0,0,0,1,1,1,0,1],
+        [1,0,1,0,1,1,1,0,1,0,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,1,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ]
+
+# let's create a single Surface for the map and reuse that
+grid = pygame.Surface((len(map[0]) * TILESIZE, len(map) * TILESIZE), pygame.SRCALPHA)
+for y, row in enumerate(map):
+    for x, cell in enumerate(row):
+
+        # if we want a wall, we draw it on the new Surface
+        # also, we store the Rect in the tile_list so collision detection works
+        if cell:
+            rect = pygame.draw.rect(grid, 'blue', (x*TILESIZE, y*TILESIZE, TILESIZE, TILESIZE))
+            tile_list.append(rect)
+
+async def main():
+
+	running = True
+    
+    while running:  
+
+		clock.tick(60)
+
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+            running = False
+
+    #player controls
+		keys = pygame.key.get_pressed()
+
+		if keys[pygame.K_LEFT]:
+			player_x -= speed
+		if keys[pygame.K_RIGHT]:
+			player_x += speed
+		if keys[pygame.K_UP]:
+			player_y -= speed
+		if keys[pygame.K_DOWN]:
+			player_y += speed
+
+		screen.fill((255,255,255))
+
+    # draw the map surface to the screen
+		screen.blit(grid, (0 ,0))
+		player = pygame.draw.rect(screen, (255,0,0), (player_x, player_y, 20, 20))   
+
+    # now collision detection works because for each 1 in the map
+    # there's a Rect in tile_list with the correct coordinates
+		for i in tile_list:
+			if player.colliderect(i):
+				print("colliding")
+				break
+		else:
+			print('not colliding')
+        
+		pygame.display.update()
+        
+        await asyncio.sleep(0)
+
+        if not running:
+            pygame.quit()
+
+                
+
+asyncio.run(main())
+
+
+
+
