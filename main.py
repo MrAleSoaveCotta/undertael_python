@@ -3,97 +3,96 @@ import pygame
 
 pygame.init()
 
-
-height = 720
-width = 1280
+height = 800
+width = 800
 screen = pygame.display.set_mode([width,height])
 
-pygame.display.set_caption("undertale test")
+pygame.display.set_caption("test")
+
+speed = 20
+x = 700
+y = 700
 
 
-#fps
-clock = pygame.time.Clock()
-FPS=60
+def game_map():
 
-#colors
-white=(255, 255, 255)
-black=(0, 0, 0)
-gray=(50, 50, 50)
-red=(255, 0, 0)
-green=(0, 255, 0)
-blue=(0, 0, 255)
-yellow=(255, 255, 0)
+    global rect_one
+    surface = pygame.Surface((100, 100), pygame.SRCALPHA)
+    rect_one = pygame.draw.rect(surface, (0, 0, 255), (0, 0, 50, 50)) 
 
-#assets
-heart = pygame.image.load('heart.png')
-heart = pygame.transform.scale(heart, (32,32))
+    global rect_two
+    surface_one = pygame.Surface((80, 80), pygame.SRCALPHA)
+    rect_two = pygame.draw.rect(surface_one, (255, 255, 255), (0, 0, 50, 50)) 
+
+    tileX = 0
+    tileY = 0
+
+    global tile_list
+    
+    tile_list = []
+
+    map = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,1,0,0,1,0,1,0,0,0,0,0,1],
+            [1,0,1,0,0,0,1,0,1,1,1,0,1],
+            [1,0,0,0,1,1,1,0,0,0,0,0,1],
+            [1,0,1,0,0,0,0,0,1,1,1,0,1],
+            [1,0,1,0,1,1,1,0,1,0,0,0,1],
+            [1,0,1,0,1,0,0,0,1,1,1,0,1],
+            [1,0,1,0,1,1,1,0,1,0,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,1,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1]
+            ]
+
+    for y, row in enumerate(map):
+        tileX = 0
+        for x, cell in enumerate(row):
+            image = surface if cell == 1 else surface_one
+            screen.blit(image, [x*50, y*50]) 
+            tile_list.append(rect_one)
+    pygame.display.update() 
 
 
-def player(x,y):
-    screen.blit(heart,(x,y))
+def player():
 
+    global x
+    global y
+    global tile_list
+    player = pygame.draw.rect(screen, (255,0,0), (x, y, 200, 200))   
+
+    for i in tile_list:
+        if player.colliderect(i):
+            print("hello")
+running = True
 
 async def main():
 
-    player_x = 100
-    player_y = 100
-
-    player_x_move = 0
-    player_y_move = 0
-
-    move_velocity = 5
-
+    global x
+    global y
 
     running = True
     
-    while running:  
-
-        screen.fill(black)
-
-
+    while running:
+        pygame.time.delay(100)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            
-            #keydown handler
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    player_y_move = -move_velocity
-                if event.key == pygame.K_DOWN:
-                    player_y_move = move_velocity
 
-                if event.key == pygame.K_RIGHT:
-                    player_x_move = move_velocity
-                if event.key == pygame.K_LEFT:
-                    player_x_move = -move_velocity
-
-
-            #keyup handler
-            if event.type == pygame.KEYUP:
-
-                if event.key == pygame.K_UP:
-                    player_y_move = 0
-                if event.key == pygame.K_DOWN:
-                    player_y_move = 0
-
-                if event.key == pygame.K_RIGHT:
-                    player_x_move = 0
-                if event.key == pygame.K_LEFT:
-                    player_x_move = 0
+        keys = pygame.key.get_pressed()
         
-
-
-
-        player_x += player_x_move
-        player_y += player_y_move
-
-        player(player_x,player_y)
-
-
-        pygame.display.update()
-
-
-        clock.tick(FPS)
+        if keys[pygame.K_LEFT]:
+            x -= speed
+        if keys[pygame.K_RIGHT]:
+            x += speed
+        if keys[pygame.K_UP]:
+            y -= speed
+        if keys[pygame.K_DOWN]:
+            y += speed
+        
+        screen.fill((255,255,255))
+        game_map()
+        player()
+        
         await asyncio.sleep(0)
 
         if not running:
@@ -102,3 +101,7 @@ async def main():
                 
 
 asyncio.run(main())
+
+
+
+
